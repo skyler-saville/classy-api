@@ -10,8 +10,11 @@ router.post('/register', async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message) // bad request
 
   // Check if user already is in the database
-  const emailExits = await User.findOne({ email: req.body.email })
-  if (emailExits) return res.status(400).send('User email already exists')
+  const emailExits = await User.findOne({ 'email': req.body.email })
+  if (emailExits) return res.status(400).json({'error': 'email address already exists'})
+
+  const phoneExists = await User.findOne({'phone.number': req.body.phone.number })
+  if (phoneExists) return res.status(400).json({'error': 'phone number already exists'})
 
   // Hash the password
   const salt = await bcrypt.genSalt(10);
@@ -22,10 +25,14 @@ router.post('/register', async (req, res) => {
     name: req.body.name,
     email: req.body.email,
     password: hashedPassword,
+    phone: {
+      carrier: req.body.phone.carrier,
+      number: req.body.phone.number
+    }
   })
   try{
     const savedUser = await user.save()
-    res.send( {user_id : user._id} )
+    res.send({ user })
   } catch(err) {
     res.status(400).send(err)
   }
@@ -38,14 +45,15 @@ router.post('/login', async (req, res) => {
 
   // Check if email does not exists
   const user = await User.findOne({ email: req.body.email })
-  if (!user) return res.status(400).send('Email not found')
+  if (!user) return res.status(400).json({'error':'Email not found'})
 
   // Check if password is correct
   const validPass = await bcrypt.compare(req.body.password, user.password)
-  if (!validPass) return res.status(400).send('Invalid Password')
+  if (!validPass) return res.status(400).json({'error': 'Invalid Password'})
 
   // Add JWT
-  const token = JWT.sign({_id: user._id }, process.env.TOKEN_SECRET)
+  // const token = JWT.sign({_id: user._id }, process.env.TOKEN_SECRET)
+  const token = JWT.sign({ user }, process.env.TOKEN_SECRET)
   res.header('auth-token', token).send(token)
   // res.send("Logged in!")
 })
