@@ -1,13 +1,25 @@
 // Validation
 const Joi = require('@hapi/joi')
 
-const registerValidation = (data) => {
+
+const companyRegisterValidation = (data) => {
+  const schema = Joi.object({
+    name: Joi.string().min(2).required(),
+    email: Joi.string().min(6).required().email(),
+    password: Joi.string().min(6).required(),
+    phone: Joi.string().regex(/^\d{10}$/).required() // formats required is 5555555555 (client-side validation required)
+  })
+  return schema.validate(data)
+}
+
+
+const userRegisterValidation = (data) => {
   const schema = Joi.object({
     name: Joi.string().min(2).required(),
     email: Joi.string().min(6).required().email(),
     password: Joi.string().min(6).required(),
     phone: {
-      number: Joi.string().max(10),
+      number: Joi.string().trim().regex(/^[0-9]{10}$/), // formats required is 5555555555 (client-side validation required)
       carrier: Joi.string().max(30)
     }
   })
@@ -28,8 +40,8 @@ const loginValidation = (data) => {
   return schema.validate(data)
 }
 
-
-module.exports.registerValidation = registerValidation
+module.exports.companyRegisterValidation = companyRegisterValidation
+module.exports.userRegisterValidation = userRegisterValidation
 module.exports.loginValidation = loginValidation
 
 

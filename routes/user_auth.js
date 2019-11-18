@@ -2,11 +2,11 @@ const router = require('express').Router()
 const User = require('../models/User')
 const bcrypt = require('bcryptjs')
 const JWT = require('jsonwebtoken')
-const { registerValidation, loginValidation } = require('../validation')
+const { userRegisterValidation, loginValidation } = require('../validation')
 
 router.post('/register', async (req, res) => {
   // Validate incoming data before saving new user
-  const { error } = registerValidation(req.body)
+  const { error } = userRegisterValidation(req.body)
   if (error) return res.status(400).send(error.details[0].message) // bad request
 
   // Check if user already is in the database
@@ -52,8 +52,9 @@ router.post('/login', async (req, res) => {
   if (!validPass) return res.status(400).json({'error': 'Invalid Password'})
 
   // Add JWT
-  // const token = JWT.sign({_id: user._id }, process.env.TOKEN_SECRET)
-  const token = JWT.sign({ user }, process.env.TOKEN_SECRET)
+  const token = JWT.sign({_id: user._id, role: user.role, message: 'this is a message' }, process.env.TOKEN_SECRET)
+  // const token = JWT.sign({ user }, process.env.TOKEN_SECRET)
+  res.cookie('Authorizarion', token, { httpOnly: true })
   res.header('auth-token', token).send(token)
   // res.send("Logged in!")
 })

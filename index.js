@@ -4,9 +4,17 @@ const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 const cookieParser = require('cookie-parser')
 dotenv.config()
+const cookie_secrets = [
+  process.env.COOKIE_SECRET_1,
+  process.env.COOKIE_SECRET_2,
+  process.env.COOKIE_SECRET_3,
+  process.env.COOKIE_SECRET_4
+]
+
 
 //Import Routes
-const authRoute = require('./routes/auth')
+const companyRoute = require('./routes/company_auth')
+const authRoute = require('./routes/user_auth')
 const postRoute = require('./routes/posts')
 const textRoute = require('./routes/messages')
 const unprotectedRoute = require('./routes/unprotected')
@@ -26,6 +34,7 @@ app.use(cookieParser())
 
 //Route Middleware
 app.use('/api/user', authRoute) // '/api/user/register'
+app.use('/api/company', companyRoute)
 app.use('/api/posts', postRoute)
 app.use('/api/messages', textRoute)
 app.use('/api/open', unprotectedRoute)
