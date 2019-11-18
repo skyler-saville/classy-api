@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const carriers_json = require('../data_sources/mobile_carriers.json')
+const Company = mongoose.model('Company')
 const carriers = []
 const carrier_gateways = []
 
@@ -85,8 +86,12 @@ const userSchema = new mongoose.Schema({
     enum: ['basic','moderate', 'advanced', 'owner', 'admin' ],
     default: 'basic'
   },
-  company: { // this will help to grant the company owner(s) similar administrative abilities as being logged in as the company profile (in case of multiple owners)
-    type: String // change this to ObjectId after the Company model is created
+  company_id: { // this will help to grant the company owner(s) similar administrative abilities as being logged in as the company profile (in case of multiple owners)
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Company
+  },
+  company_name: {
+    type: String
   }
 })
 

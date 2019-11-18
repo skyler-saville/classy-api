@@ -18,6 +18,7 @@ const authRoute = require('./routes/user_auth')
 const postRoute = require('./routes/posts')
 const textRoute = require('./routes/messages')
 const unprotectedRoute = require('./routes/unprotected')
+const usersRoutes = require('./routes/users')
 
 
 
@@ -38,6 +39,7 @@ app.use('/api/company', companyRoute)
 app.use('/api/posts', postRoute)
 app.use('/api/messages', textRoute)
 app.use('/api/open', unprotectedRoute)
+app.use('/api', usersRoutes)
 
 
 app.listen(3001, () => console.log('Server Up and Running on Port 3001'))
