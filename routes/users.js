@@ -7,6 +7,8 @@ const Company = mongoose.model('Company')
 const bcrypt = require('bcryptjs')
 const User = mongoose.model('User')
 const { userRegisterValidation, loginValidation } = require('../validation')
+const verify = require('../middleware/verifyToken')
+const isCompany = require('../middleware/verifyCompany')
 
 
 /**
@@ -21,7 +23,7 @@ router.use(function(req, res, next) {
 /**
  * User Collection Routes
  */
-router.route('/users')
+router.route('/users/confirm')
   .post( async (req, res) => {
     if (req.query.token) {
       const verified = jwt.verify(req.query.token, process.env.TOKEN_SECRET)
@@ -91,6 +93,24 @@ router.route('/users')
     })
   }
 })
+
+router.route('/users/invite')
+  .post( verify, isCompany, async (req, res) => {
+    // get current company's id
+    if (req.cookies) { console.log('req.cookies = ', req.cookies)}
+    if (req.user) { console.log('req.user = ', req.user )}
+    const payload = {
+      company_id: req.user._id,
+      email: req.body.email,
+      role: req.body.role
+    }
+    const token = jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: '1 day'})
+    const url = "http://localhost:3001/api/users/confirm?token="+token
+
+    // send this url to an unprotected route, but process the information as a POST to api/users/confirm?token
+
+    res.send(url)
+  })
 
 
 module.exports = router
