@@ -36,6 +36,11 @@ const companySchema = new mongoose.Schema({
   },
   company: { // this will help to grant the company owner(s) similar administrative abilities as being logged in as the company profile (in case of multiple owners)
     type: String // change this to ObjectId after the Company model is created
+  }, 
+  status: {
+    type: String, 
+    enum: ['pending', 'active', 'disabled'],
+    default: 'pending' // will change to active when email is confirmed
   }
 })
 

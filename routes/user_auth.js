@@ -5,6 +5,7 @@ const JWT = require('jsonwebtoken')
 const { userRegisterValidation, loginValidation } = require('../validation')
 
 router.post('/register', async (req, res) => {
+  console.log('user registration . . . . . . . . . . .')
   // Validate incoming data before saving new user
   const { error } = userRegisterValidation(req.body)
   if (error) return res.status(400).send(error.details[0].message) // bad request

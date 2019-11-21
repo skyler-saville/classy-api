@@ -1,7 +1,8 @@
 const router = require('express').Router()
 const verify = require('./verifyToken')
+const very_low_auth = require('../middleware/permissions').VeryLow
 
-router.get('/', verify, (req, res) => {
+router.get('/', verify, very_low_auth, (req, res) => {
 
   if (req.user) { 
     const user = req.user

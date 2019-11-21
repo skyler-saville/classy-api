@@ -8,7 +8,8 @@ const bcrypt = require('bcryptjs')
 const User = mongoose.model('User')
 const { userRegisterValidation, loginValidation } = require('../validation')
 const verify = require('../middleware/verifyToken')
-const isCompany = require('../middleware/verifyCompany')
+const isCompany = require('../middleware/permissions').company
+const nodemailer = require('nodemailer')
 
 
 /**
@@ -23,7 +24,7 @@ router.use(function(req, res, next) {
 /**
  * User Collection Routes
  */
-router.route('/users/confirm')
+router.route('/confirm')
   .post( async (req, res) => {
     if (req.query.token) {
       const verified = jwt.verify(req.query.token, process.env.TOKEN_SECRET)
@@ -94,7 +95,7 @@ router.route('/users/confirm')
   }
 })
 
-router.route('/users/invite')
+router.route('/invite') // only a company can invite an employee
   .post( verify, isCompany, async (req, res) => {
     // get current company's id
     if (req.cookies) { console.log('req.cookies = ', req.cookies)}
@@ -105,9 +106,9 @@ router.route('/users/invite')
       role: req.body.role
     }
     const token = jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: '1 day'})
-    const url = "http://localhost:3001/api/users/confirm?token="+token
+    const url = "http://localhost:8080/user/registeration?token="+token
 
-    // send this url to an unprotected route, but process the information as a POST to api/users/confirm?token
+    // send this url via email to user. When the user submits the form on that page it will POST to api/users/confirm?token
 
     res.send(url)
   })

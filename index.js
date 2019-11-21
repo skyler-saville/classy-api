@@ -39,7 +39,7 @@ app.use('/api/company', companyRoute)
 app.use('/api/posts', postRoute)
 app.use('/api/messages', textRoute)
 app.use('/api/open', unprotectedRoute)
-app.use('/api', usersRoutes)
+app.use('/api/users', usersRoutes)
 
 
 app.listen(3001, () => console.log('Server Up and Running on Port 3001'))
