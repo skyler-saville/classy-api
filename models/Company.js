@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const bcrypt = require('bcryptjs')
 
 const companySchema = new mongoose.Schema({
   name: {
@@ -34,9 +33,6 @@ const companySchema = new mongoose.Schema({
     type: String,
     default: 'company'
   },
-  company: { // this will help to grant the company owner(s) similar administrative abilities as being logged in as the company profile (in case of multiple owners)
-    type: String // change this to ObjectId after the Company model is created
-  }, 
   status: {
     type: String, 
     enum: ['pending', 'active', 'disabled'],

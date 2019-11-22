@@ -92,6 +92,11 @@ const userSchema = new mongoose.Schema({
   },
   company_name: {
     type: String
+  },
+  status: {
+    type: String, 
+    enum: ['pending', 'active', 'disabled'],
+    default: 'pending' // will change to active when email is confirmed
   }
 })
 

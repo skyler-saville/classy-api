@@ -7,7 +7,7 @@ const companyRegisterValidation = (data) => {
     name: Joi.string().min(2).required(),
     email: Joi.string().min(6).required().email(),
     password: Joi.string().min(6).required(),
-    phone: Joi.string().regex(/^\d{10}$/).required() // formats required is 5555555555 (client-side validation required)
+    phone: Joi.string().regex(/^\d{10}$/) // formats required is 5555555555 (client-side validation required)
   })
   return schema.validate(data)
 }
@@ -40,9 +40,19 @@ const loginValidation = (data) => {
   return schema.validate(data)
 }
 
+// used for validating PATCH updates on Users and Companies
+const phoneValidate = (data) => {
+  const schema = Joi.object({
+    phone: Joi.string().trim().regex(/^[0-9]{10}$/), // formats required is 5555555555 (client-side validation required)
+  })
+  return schema.validate(data)
+}
+
+
 module.exports.companyRegisterValidation = companyRegisterValidation
 module.exports.userRegisterValidation = userRegisterValidation
 module.exports.loginValidation = loginValidation
+module.exports.phoneValidate = phoneValidate
 
 
   // // Validate data before making a new user

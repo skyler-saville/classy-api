@@ -16,8 +16,8 @@ router.post('/register', async (req, res) => {
   const companyEmailExists = await Company.findOne({ 'email': req.body.email })
   if (companyEmailExists || userEmailExists) return res.status(400).json({'error': 'email address already exists'})
 
-  const phoneExists = await Company.findOne({'phone': req.body.phone.number })
-  if (phoneExists) return res.status(400).json({'error': 'phone number already exists'})
+  const phoneExists = await Company.findOne({'phone': req.body.phone })
+  if (phoneExists) return res.status(400).json({'error': 'phone number already exists', 'phone_Exist': phoneExists})
 
   // Hash the password
   const salt = await bcrypt.genSalt(10);
@@ -52,10 +52,10 @@ router.post('/login', async (req, res) => {
   if (!validPass) return res.status(400).json({'error': 'Invalid Password'})
 
   // Add JWT
-  const token = JWT.sign({_id: user._id, role: user.role, message: 'this is a message' }, process.env.TOKEN_SECRET)
+  const token = JWT.sign({_id: user._id, role: user.role, message: 'this user is a Company' }, process.env.TOKEN_SECRET)
   // const token = JWT.sign({ user }, process.env.TOKEN_SECRET)
   res.cookie('Authorizarion', token, { httpOnly: true })
-  res.header('auth-token', token).send(token)
+  res.header('auth-token', token).send({ "company_token" : token })
   // res.send("Logged in!")
 })
 
