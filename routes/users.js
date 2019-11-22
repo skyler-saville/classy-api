@@ -12,6 +12,54 @@ const isCompany = require('../middleware/permissions').company
 const nodemailer = require('nodemailer')
 const possibleRoles = ['basic', 'moderate', 'advanced', 'owner'] // company cannot assign a user to be a Company or an Admin
 
+const carriers_json = require('../data_sources/mobile_carriers.json')
+const carriers = []
+const carrier_gateways = []
+
+function appendGateways (carriers_json) {
+  const us_carriers = carriers_json.sms_carriers.us 
+  for (i in us_carriers) {
+    carrier_gateways.push(us_carriers[i][1])
+    // console.log('appending to carriers_gateways array in Users model ', us_carriers[i][0])
+  }
+  console.log('running the Gateways function')
+  carrier_gateways.push('N/A')
+  console.log(carrier_gateways[0])
+  return carrier_gateways
+}
+
+function appendCarriers (carriers_json) {
+  const us_carriers = carriers_json.sms_carriers.us 
+  for (i in us_carriers) {
+    carriers.push(us_carriers[i][0])
+    // console.log('appending to carriers array in Users model ', us_carriers[i][0])
+  }
+  console.log('running the appendCarriers function')
+  carriers.push('N/A')
+  console.log(carriers[0])
+  return carriers
+}
+
+function addNumberToGateway (userCarrier, userNumber, carriers, carrier_gateways) {
+  appendCarriers(carriers_json)
+  appendGateways(carriers_json)
+  if (carriers.length == carrier_gateways.length) {
+    for (i in carriers) {
+      if (userCarrier == carriers[i]) {
+        const this_gateway = carrier_gateways[i]
+        if (this_gateway !== "N/A"){
+          console.log('this_gateway !== "N/A"')
+          const users_gateway = this_gateway.replace("{number}", userNumber)
+          console.log("users_gateway from addNumberToGateway function", users_gateway)
+          return users_gateway
+        }
+      }
+    }
+  }
+}
+
+
+
 /**
  * Middleware.use
  */
@@ -147,12 +195,27 @@ router.route('/:id/role')
       return res.status(400).send(error.details[0].message) // bad request
     } else {
       try {
-        const filter = { _id: req.params.id }
-        const update = { 'phone.number' : req.body.phone+'_Pending' } // create a way for the user to receive a text message and remove the '_Pending'
-        let thisUser = await User.findOneAndUpdate(filter, update, {
-          new: true
-        })
-        if (thisUser){ res.send({ this_user: thisUser._id, number: thisUser.phone.number })} else { res.status(400).send({error: "update on user failed"})}
+          console.log('---------- inside the TRY of PATCH /:id/phone-number')
+          // replace {number} with this.phone.number on the gateway value and set phone.carrier_gateway to this new string
+          // create a function for it
+          const userCarrier = req.body.carrier
+          const userNumber = req.body.phone
+          const carrier_gateway = addNumberToGateway(userCarrier, userNumber, carriers, carrier_gateways)
+          console.log('TRY GATEWAY = ', carrier_gateway)
+
+          const filter = { _id: req.params.id }
+          const update = { 'phone.number': req.body.phone, 'phone.carrier': req.body.carrier, 'phone.carrier_gateway': carrier_gateway } // create a way for the user to receive a text message and remove the '_Pending'
+          let thisUser = await User.findOneAndUpdate(filter, update, {
+            new: true,
+            useFindAndModify: false
+          })
+          if (thisUser){ res.send({ 
+            this_user: thisUser._id, 
+            number: thisUser.phone.number, 
+            carrier: thisUser.phone.carrier, 
+            gateway: thisUser.phone.carrier_gateway 
+          })
+        } else { res.status(400).send({error: "update on user failed"})}
       } catch(err) {
         console.log(err)
         res.status(400).send(err)

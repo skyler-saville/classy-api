@@ -112,5 +112,20 @@ userSchema.pre('save', function (next) {
   next()
 })
 
+// userSchema.pre('findOneAndUpdate', function (next) {
+//   this._update.$set.phone.carrier_gateway = 'null'
+//   console.log('-------------------------->>>>>>> post findOneAndUpdate: ', this)
+//   if (this._update.phone.number && this._update.phone.carrier) {
+//     console.log(this._update.phone.number)
+//     replace {number} with this.phone.number on the gateway value and set phone.carrier_gateway to this new string
+//     create a function for it
+//     const userCarrier = this.phone.carrier
+//     const userNumber = this.phone.number
+//     this.phone.carrier_gateway = addNumberToGateway(userCarrier, userNumber, carriers, carrier_gateways)
+//   }
+//   console.log('running pre-save')
+//   next()
+// })
+
 
 module.exports = mongoose.model('User', userSchema)
