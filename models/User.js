@@ -1,8 +1,31 @@
 const mongoose = require('mongoose')
+const flatten = require('flat')
 const carriers_json = require('../data_sources/mobile_carriers.json')
 const Company = mongoose.model('Company')
 const carriers = []
 const carrier_gateways = []
+const Roles = flatten(Object.freeze({  // flatten Object to single level ( i.e. Office: {Admin: "admin"} becomes "Office.Admin": "admin" ) to allow enum to work
+  Admin: 'admin',
+  Company: 'company',
+  Owner: 'owner',
+  Office: {
+    Admin: 'office.admin',
+    Mod: 'office.mod',
+    Basic: 'office.basic'
+  },
+  Shop: {
+    Admin: 'shop.admin',
+    Mod: 'shop.mod',
+    Basic: 'shop.basic' 
+  },
+  Installer: {
+    Admin: 'installer.admin',
+    Mod: 'installer.mod',
+    Basic: 'installer.basic'
+  },
+  Basic: 'basic',
+  Customer: 'customer'
+}))
 
 function appendGateways (carriers_json) {
   const us_carriers = carriers_json.sms_carriers.us 
@@ -23,7 +46,7 @@ function appendCarriers (carriers_json) {
     // console.log('appending to carriers array in Users model ', us_carriers[i][0])
   }
   console.log('running the appendCarriers function')
-  carriers.push('N/A')
+  carriers.push('N/A') // append 'N/A' to list of carriers
   console.log(carriers[0])
   return carriers
 }
@@ -83,8 +106,9 @@ const userSchema = new mongoose.Schema({
   }, // adding to user schema to create User authorization
   role: {
     type: String,
-    enum: ['basic','moderate', 'advanced', 'owner', 'admin' ],
-    default: 'basic'
+    // enum: ['basic','moderate', 'advanced', 'owner', 'admin' ],
+    enum: Object.values(Roles),
+    default: Roles.Basic
   },
   company_id: { // this will help to grant the company owner(s) similar administrative abilities as being logged in as the company profile (in case of multiple owners)
     type: mongoose.Schema.Types.ObjectId,

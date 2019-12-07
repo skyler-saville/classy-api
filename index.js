@@ -19,6 +19,7 @@ const postRoute = require('./routes/posts')
 const textRoute = require('./routes/messages')
 const unprotectedRoute = require('./routes/unprotected')
 const usersRoutes = require('./routes/users')
+const logoutRoute = require('./routes/logout')
 
 
 
@@ -40,6 +41,7 @@ app.use('/api/posts', postRoute)
 app.use('/api/messages', textRoute)
 app.use('/api/open', unprotectedRoute)
 app.use('/api/users', usersRoutes)
+app.use('/api', logoutRoute) // Logout route for ALL users
 
 
 app.listen(3001, () => console.log('Server Up and Running on Port 3001'))

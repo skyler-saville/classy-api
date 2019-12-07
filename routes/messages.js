@@ -1,6 +1,6 @@
 const router = require('express').Router()
 const nodemailer = require('nodemailer')
-const verify = require('./verifyToken')
+const verify = require('../middleware/verifyToken')
 const emailConfig = require('../email.config')
 
 router.get('/test', verify, (req, res) => {

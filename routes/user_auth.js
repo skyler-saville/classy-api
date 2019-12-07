@@ -55,7 +55,7 @@ router.post('/login', async (req, res) => {
   // Add JWT
   const token = JWT.sign({_id: user._id, role: user.role, message: 'this is a message' }, process.env.TOKEN_SECRET)
   // const token = JWT.sign({ user }, process.env.TOKEN_SECRET)
-  res.cookie('Authorizarion', token, { httpOnly: true })
+  res.cookie('authorizarion', token, { httpOnly: true })
   res.header('auth-token', token).send(token)
   // res.send("Logged in!")
 })

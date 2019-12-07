@@ -72,7 +72,25 @@ router.use(function(req, res, next) {
 /**
  * User Collection Routes
  */
-router.route('/confirm')
+router.route('/invite') // only a company can invite an employee
+  .post( verify, isCompany, async (req, res) => {
+    // get current company's id
+    if (req.cookies) { console.log('req.cookies = ', req.cookies)}
+    if (req.user) { console.log('req.user = ', req.user )}
+    const payload = {
+      company_id: req.user._id,
+      email: req.body.email,
+      role: req.body.role
+    }
+    const token = jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: '1 day'})
+    const url = "http://localhost:8080/user/registeration?token="+token
+
+    // send this url via email to user. When the user submits the form on that page it will POST to api/users/confirm?token
+
+    res.send({ url : url, token : token })
+  })
+
+router.route('/confirm') // user will be emailed the link (which expires in 1 day)
   .post( async (req, res) => {
     if (req.query.token) {
       const verified = jwt.verify(req.query.token, process.env.TOKEN_SECRET)
@@ -145,24 +163,6 @@ router.route('/confirm')
     })
   }
 })
-
-router.route('/invite') // only a company can invite an employee
-  .post( verify, isCompany, async (req, res) => {
-    // get current company's id
-    if (req.cookies) { console.log('req.cookies = ', req.cookies)}
-    if (req.user) { console.log('req.user = ', req.user )}
-    const payload = {
-      company_id: req.user._id,
-      email: req.body.email,
-      role: req.body.role
-    }
-    const token = jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: '1 day'})
-    const url = "http://localhost:8080/user/registeration?token="+token
-
-    // send this url via email to user. When the user submits the form on that page it will POST to api/users/confirm?token
-
-    res.send({ url : url, token : token })
-  })
 
 /**
  *  UPDATE USER INFO

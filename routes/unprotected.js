@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const verify = require('./verifyToken')
+const verify = require('../middleware/verifyToken')
 
 router.get('/cookie-test', (req, res) => {
   res.cookie('Authorization', 'un-authorized')
