@@ -33,9 +33,9 @@ function appendGateways (carriers_json) {
     carrier_gateways.push(us_carriers[i][1])
     // console.log('appending to carriers_gateways array in Users model ', us_carriers[i][0])
   }
-  console.log('running the Gateways function')
+  //console.log('running the Gateways function')
   carrier_gateways.push('N/A')
-  console.log(carrier_gateways[0])
+  //console.log(carrier_gateways[0])
   return carrier_gateways
 }
 
@@ -45,9 +45,9 @@ function appendCarriers (carriers_json) {
     carriers.push(us_carriers[i][0])
     // console.log('appending to carriers array in Users model ', us_carriers[i][0])
   }
-  console.log('running the appendCarriers function')
+  //console.log('running the appendCarriers function')
   carriers.push('N/A') // append 'N/A' to list of carriers
-  console.log(carriers[0])
+  //console.log(carriers[0])
   return carriers
 }
 

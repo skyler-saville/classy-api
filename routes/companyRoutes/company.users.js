@@ -15,12 +15,24 @@ router.route('/')
     if (req.user._id) {    // ONLY ALLOW COMPANY ACCESS TO THE COMPANY ROUTES (NOT THE OWNER)
       try {
         // find users by their company_id. Return resultes with phone, password, company_name, company_id, and __v omitted.
-        Users = await User.find({company_id: req.user._id}, { phone: 0, password: 0, company_id: 0, company_name: 0, __v: 0 })
+        Users = await User.find({company_id: req.user._id}, { "phone.carrier": 0, password: 0, company_id: 0, company_name: 0, __v: 0 })
+        if (Users) {
+          console.log('trying non-query route')
+          res.status(200).json(Users)
+        } else {
+          res.status(400).json({
+            code: 'failure',
+            message: 'unable to locate user data for company_id',
+            company_id: req.user._id
+          })
+        }
       } catch (err) {
-        console.log(err)
+        res.status(400).json({
+          code: 'failure',
+          message: 'malformed user_id or some other issue caused an error',
+          error: err
+        })
       }
-      console.log('trying non-query route')
-      res.status(200).json(Users)
     } else {                  // Catch All and send 4xx error status code
       console.log('trying catch all')
       res.status(400).json({
@@ -29,7 +41,40 @@ router.route('/')
       })
     }
   })
+
 // GET ONE USER   /api/company/users/:id
+router.route('/:id')
+  .get(verify, company, async (req, res) => {
+    if (req.user._id && req.params.id) {
+      try {
+        // find a single user by thier _id, that belongs to company_id === req.user._id
+        const foundUser = await User.findOne({_id: req.params.id, company_id: req.user._id}, { "phone.carrier": 0, password: 0, company_id: 0, company_name: 0, __v: 0 })
+        if (foundUser) {
+          res.send(foundUser) // only one user
+        } else {
+          res.status(400).json({
+            code: 'failure',
+            message: `unable to locate the user for company_id: ${req.user._id}` ,
+            user_id: req.params.id
+          })
+        }
+      } catch (err) {
+        res.status(400).json({
+          code: 'failure',
+          message: 'malformed user_id or some other issue caused an error',
+          error: err
+        })
+      }
+    } else {
+      console.log('trying catch all')
+      res.status(400).json({
+        code: 'failure',
+        message: 'not qualified to make this request'
+      })
+    }
+  })
+
+// GET FILTERED LIST OF USERS   /api/company/users/search
 router.route('/search')
   .get(verify, company, async (req, res) => {
     // query for role-type
@@ -48,14 +93,14 @@ router.route('/search')
     if (req.query.before_date) {
       var results = []
       // res.send(`employees before date ${req.query.date_before}`)
-      const employees = await User.find({company_id: req.user._id}, {password: 0, __v: 0, company_id: 0, company_name: 0, "phone.carrier": 0})
+      const employees = await User.find({company_id: req.user._id}, { password: 0, __v: 0, company_id: 0, company_name: 0, "phone.carrier": 0 })
       if (employees) {
         try {
           const queryDate = req.query.before_date
           const before = moment(queryDate)
           for (var i = 0; i < employees.length; i++) {
             var tmp = moment(employees[i].date)
-            if (tmp.isBefore(before, 'day')) {
+            if (tmp.isSameOrBefore(before, 'day')) {
               results.push(employees[i])
             }
           }
@@ -71,7 +116,11 @@ router.route('/search')
             res.send(results)
           }
         } catch (err) {
-          console.log(err)
+          res.status(400).json({
+            code: 'failure',
+            message: 'malformed user_id or some other issue caused an error',
+            error: err
+          })
         }
       } else {
         res.status(401).send({
@@ -92,7 +141,7 @@ router.route('/search')
           const after = moment(queryDate)
           for (var i = 0; i < employees.length; i++) {
               var tmp = moment(employees[i].date)
-              if (tmp.isAfter(after, 'day')) {
+              if (tmp.isSameOrAfter(after, 'day')) {
                 results.push(employees[i])
               }
           }

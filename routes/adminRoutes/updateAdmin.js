@@ -5,15 +5,11 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
 const verify = require('../../middleware/verifyToken')
-const { VeryHigh, isSelf_orCompany, isSelf_orAdmin } = require('../../middleware/permissions')
+const { isSelf_orAdmin, isSelf } = require('../../middleware/permissions')
 const { Low_Roles } = require('../../middleware/Roles')
 const lowRoles = Object.values(Low_Roles)
-const sameCompany = require('../../middleware/sameCompany').sameCompany
 const User = mongoose.model('User')
 const { phoneValidate } = require('../../validation')
-
-
-
 
 /**
  * Phone number functions
@@ -70,7 +66,7 @@ function addNumberToGateway (userCarrier, userNumber, carriers, carrier_gateways
 // updating a users role can only be done from Company, Owner or Admin user accounts
 
 router.route('/:id/role')
-  .patch( verify, sameCompany, VeryHigh, async (req, res) => {
+  .patch( verify, isSelf_orAdmin, async (req, res) => {
     // console.log('Low Roles = ', Object.values(Low_Roles))
     // check role assignment against lowRoles and exclude Admin and Company from list of possible role assignments
     console.log(`Trying to assign ${req.body.role} to ${req.user._id}`)
@@ -89,24 +85,32 @@ router.route('/:id/role')
           new: true,
           useFindAndModify: false
         })
-        if (thisUser){ res.send({ this_user: thisUser })} else { res.status(400).send({error: "update on user failed"})}
+        if (thisUser){ res.send({ this_user: thisUser })} else { res.status(400).json({code: 'failure', message: "update on user failed"})}
       } catch(err) {
         console.log(err)
-        res.status(400).send(err)
+        res.status(400).json({
+          code: 'failure',
+          message: err
+        })
       }
     } else {
       res.status(400).send({
-        error: `User cannot be assigned to ${req.body.role} role` 
+        code: 'failure',
+        message: `User cannot be assigned to ${req.body.role} role` 
       })
     }
   })
 
 // update phone-number
   router.route('/:id/phone-number')
-  .patch( verify, isSelf_orCompany, async (req, res) => {
+  .patch( verify, isSelf_orAdmin, async (req, res) => {
     const { error } = phoneValidate(req.body)
     if (error) {
-      return res.status(400).send(error.details[0].message) // bad request
+      return res.status(400).json({
+        code: 'failure',
+        message: 'validation error',
+        error: error.details[0].message
+      }) // bad request
     } else {
       try {
           console.log('---------- inside the TRY of PATCH /:id/phone-number')
@@ -129,19 +133,26 @@ router.route('/:id/role')
             carrier: thisUser.phone.carrier, 
             gateway: thisUser.phone.carrier_gateway 
           })
-        } else { res.status(400).send({error: "update on user failed"})}
+        } else { res.status(400).json({
+          code: 'failure',
+          message: "update on user failed"})}
       } catch(err) {
         console.log(err)
-        res.status(400).send(err)
+        res.status(400).json({
+          code: 'failure',
+          message: err
+        })
       }
     }
   })
 
 // update password
   router.route('/:id/password')
-  .patch( verify, isSelf_orAdmin, async (req, res) => {  // remove Admin after this is working and change to isSelf only
+  .patch( verify, isSelf, async (req, res) => {  // remove Admin after this is working and change to isSelf only
     if (req.body.password !== req.body.confirm) {
-      res.status(400).send({error: 'The passwords submitted do not match. Please try again.'})
+      res.status(400).json({
+        code: 'failure',
+        message: 'The passwords submitted do not match. Please try again.'})
     } else {
       try{
 
@@ -154,18 +165,35 @@ router.route('/:id/role')
         // use bcrypt to compare the two and see if they match
         const matched = await bcrypt.compare(req.body.password, checkUser.password)
         if (matched) {
-          res.status(400).send({error: 'The new password matches a previously used password. For security, we suggest updating to a brand new password.'})
+          res.status(400).json({
+            code: 'failure',
+            message: 'The new password matches a previously used password. \nFor security, we suggest updating to a brand new password.'})
         } else {
           const filter = { _id: req.params.id }
           const update = { password: hashedPassword }
           let thisUser = await User.findOneAndUpdate(filter, update, {
             new: true // {new: true}  option returns the updated user upon successful update.
           })
-          if (thisUser){ res.send({ message: "Password Update Successful!", this_user: thisUser._id })} else { res.status(400).send({error: "update on user failed"})}
+          if (thisUser){ 
+            res.status(200).send({ 
+              code: 'success',
+              message: "Password Update Successful!", 
+              this_user: thisUser._id 
+            })
+          } else { 
+            res.status(400).json({
+              code: 'failure',
+              message: "update on user failed"
+            })
+          }
         }
       } catch(err) {
         console.log(err)
-        res.status(400).send(err)
+        res.status(400).json({
+          code: 'failure',
+          message: 'unable to update password',
+          error: err
+        })
       }
     }
   })

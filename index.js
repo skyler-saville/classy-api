@@ -11,6 +11,7 @@ dotenv.config()
 // AUTHENTICATE ROUTES
 const companyAuthRoute = require('./routes/companyRoutes/company_auth')
 const userAuthRoute = require('./routes/userRoutes/user_auth')
+const adminAuthRoute = require('./routes/adminRoutes/admin_auth')
 // COMPANY ROUTES
 const companyUsersRouter = require('./routes/companyRoutes/company.users')
 // USERS ROUTES
@@ -27,7 +28,7 @@ const logoutRoute = require('./routes/logout')
 // DB connection
 mongoose.connect(process.env.DB_CONNECTION, 
   { useNewUrlParser: true , useUnifiedTopology: true }, 
-  () => console.log('Connected to MongoDB Atlas')
+  () => console.log('Connected to MongoDB Atlas\n. . . .\n. .\n.')
 )
 
 // Middleware
@@ -37,7 +38,7 @@ app.use(cookieParser())
 
 //Route Middleware
 // ADMINS ROUTERS
-
+app.use('/api/admin', adminAuthRoute)     // check for Admin Invite Code
 // USERS ROUTERS
 app.use('/api/user', userAuthRoute)         //  '/api/user/register'
 app.use('/api/user', updateUserRoutes)  //  '/api/user/:id/(role, password, or phone-number)
@@ -52,4 +53,4 @@ app.use('/api/messages', textRoute)
 app.use('/api', logoutRoute)            //  '/api/logout'
 
 
-app.listen(3001, () => console.log('Server Up and Running on Port 3001'))
+app.listen(3001, () => console.log('.  \n. .  \n. . . . \nServer Up and Running on Port 3001'))
