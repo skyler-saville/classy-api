@@ -1,15 +1,15 @@
 const router = require('express').Router()
-const Company = require('../models/company')
-const User = require('../models/User')
+const Company = require('../../models/company')
+const User = require('../../models/User')
 const bcrypt = require('bcryptjs')
 const JWT = require('jsonwebtoken')
-const { companyRegisterValidation, loginValidation } = require('../validation')
+const { companyRegisterValidation, loginValidation } = require('../../validation')
 
 // Company Sign-Up
 router.post('/register', async (req, res) => {
   // Validate incoming data before saving new company
   const { error } = companyRegisterValidation(req.body)
-  if (error) return res.status(400).json({'error': error.details[0].message }) // bad request
+  if (error) return res.status(400).json({'code': `User:${req.user}` , 'error': error.details[0].message }) // bad request
 
   // Check if user already is in the database
   const userEmailExists = await User.findOne({ 'email': req.body.email })
@@ -32,7 +32,8 @@ router.post('/register', async (req, res) => {
   })
   try{
     const savedCompany = await company.save()
-    res.send({ company })
+    res.status(201).send({ message: "company created!", code: "success", company })
+    console.log("Company User Profile Created on ", Date.now())
   } catch(err) {
     res.status(400).send(err)
   }
@@ -54,13 +55,17 @@ router.post('/login', async (req, res) => {
   // Add JWT
   const token = JWT.sign({_id: company._id, role: company.role, message: `Logged in as ${company.name}` }, process.env.TOKEN_SECRET)
   // Set Cookie Authorization=JWT httpOnly
-  res.cookie('authorizarion', token, { httpOnly: true, expires: new Date(Date.now() + 900000) })
+  res.cookie('authorizarion', token, { httpOnly: true })
+  res.header('auth-token', token)
+    .send({
+      code: 'success',
+      message: `Hello ${company.name}`,
+      auth_cookie: token
+    })
   /**
    * Eventually will redirect to the correct place. Currently though, /posts displays the current JWT info
    */
   // res.redirect('/api/posts') 
-  res.send(token)
-
 })
 
 module.exports = router

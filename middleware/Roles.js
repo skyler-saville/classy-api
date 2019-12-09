@@ -69,7 +69,8 @@ const High_Roles = flatten(Object.freeze({
 }))
 const Company_Roles = flatten(Object.freeze({  
   Admin: 'admin',
-  Company: 'company'
+  Company: 'company',
+  Owner: 'owner'
 }))
 const Admin_Roles = flatten(Object.freeze({  
   Admin: 'admin'

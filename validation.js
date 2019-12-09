@@ -43,8 +43,10 @@ const loginValidation = (data) => {
 // used for validating PATCH updates on Users and Companies
 const phoneValidate = (data) => {
   const schema = Joi.object({
-    phone: Joi.string().trim().regex(/^[0-9]{10}$/), // formats required is 5555555555 (client-side validation required)
-    carrier: Joi.string().max(25)
+    phone: {
+      number: Joi.string().trim().regex(/^[0-9]{10}$/), // formats required is 5555555555 (client-side validation required)
+      carrier: Joi.string().max(25)
+    }
   })
   return schema.validate(data)
 }

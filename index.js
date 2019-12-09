@@ -4,21 +4,22 @@ const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 const cookieParser = require('cookie-parser')
 dotenv.config()
-const cookie_secrets = [
-  process.env.COOKIE_SECRET_1,
-  process.env.COOKIE_SECRET_2,
-  process.env.COOKIE_SECRET_3,
-  process.env.COOKIE_SECRET_4
-]
 
 
 //Import Routes
-const companyRoute = require('./routes/company_auth')
-const authRoute = require('./routes/user_auth')
+
+// AUTHENTICATE ROUTES
+const companyAuthRoute = require('./routes/companyRoutes/company_auth')
+const userAuthRoute = require('./routes/userRoutes/user_auth')
+// COMPANY ROUTES
+const companyUsersRouter = require('./routes/companyRoutes/company.users')
+// USERS ROUTES
+const inviteUsersRouter = require('./routes/inviteUsers')
+const updateUserRoutes = require('./routes/userRoutes/updateUser')
+// TEST ROUTES (delete before final push)
 const postRoute = require('./routes/posts')
 const textRoute = require('./routes/messages')
-const unprotectedRoute = require('./routes/unprotected')
-const usersRoutes = require('./routes/users')
+//LOGOUT ROUTES
 const logoutRoute = require('./routes/logout')
 
 
@@ -35,13 +36,20 @@ app.use(cookieParser())
 
 
 //Route Middleware
-app.use('/api/user', authRoute) // '/api/user/register'
-app.use('/api/company', companyRoute)
+// ADMINS ROUTERS
+
+// USERS ROUTERS
+app.use('/api/user', userAuthRoute)         //  '/api/user/register'
+app.use('/api/user', updateUserRoutes)  //  '/api/user/:id/(role, password, or phone-number)
+app.use('/api/users', inviteUsersRouter)
+// COMPANIES ROUTERS
+app.use('/api/company', companyAuthRoute)
+app.use('/api/company/users', companyUsersRouter)
+// MISC ROUTERS
 app.use('/api/posts', postRoute)
 app.use('/api/messages', textRoute)
-app.use('/api/open', unprotectedRoute)
-app.use('/api/users', usersRoutes)
-app.use('/api', logoutRoute) // Logout route for ALL users
+// LOGOUT ROUTERS
+app.use('/api', logoutRoute)            //  '/api/logout'
 
 
 app.listen(3001, () => console.log('Server Up and Running on Port 3001'))

@@ -1,9 +1,13 @@
 const router = require('express').Router()
-const User = require('../models/User')
+const User = require('../../models/User')
 const bcrypt = require('bcryptjs')
 const JWT = require('jsonwebtoken')
-const { userRegisterValidation, loginValidation } = require('../validation')
+const { userRegisterValidation, loginValidation } = require('../../validation')
 
+/**
+ * /register will be replaced by the user/invite method. But will leave for now, for testing purposes
+ */
+// Create New User (This may become the ADMIN register path later on)
 router.post('/register', async (req, res) => {
   console.log('user registration . . . . . . . . . . .')
   // Validate incoming data before saving new user

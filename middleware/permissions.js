@@ -23,53 +23,56 @@ const customer = Object.values(Customer_Roles)
  */
 // PROTECT SELF ROUTES (currently logged in ADMIN, COMPANY, or USER ONLY) for stuff like password changes, etc.
 const isSelf = function (req, res, next){
-  if (req.user.id !== req.params) {
-    console.log("Unauthorized User", req.user.id)
-    return res.status(403).send({ message: 'Access Denied', reason: "Incorrect User Creditials" })
+  if (req.user._id !== req.params.id) {
+    console.log("Unauthorized User", req.user._id)
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Incorrect User Creditials" })
   }
   next()
 }
 // Current user or Admin
 const isSelf_orAdmin = function (req, res, next){
-  if (req.user.id === req.params || admin_only.includes(req.user.role)) {
+  if (req.user._id === req.params.id || admin_only.includes(req.user.role)) {
     next()
   } else {
-    console.log("Unauthorized User", req.user.id, req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Incorrect User Creditials" })
+    console.log("Unauthorized User", req.user._id, req.user.role)
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Incorrect User Creditials" })
   }
 }
 // Includes ADMIN access, by Default
 const isSelf_orCompany = function (req, res, next){
-  if (req.user.id === req.params || very_high.includes(req.user.role)) {
+  console.log('isSelf_orCompany params=',req.params)
+  console.log('isSelf_orCompany req.user.id=', req.user)
+  if (req.user._id === req.params.id || very_high.includes(req.user.role)) {
+    console.log('req.params = ', req.params)
     next()
   } else {
-    console.log("Unauthorized User", req.user.id, req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Incorrect User Creditials" })
+    console.log("Unauthorized User", req.user._id, req.user.role)
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Incorrect User Creditials" })
   }
 }
 // Include ADMIN & COMPANY
 const isSelf_orOwner = function (req, res, next){
-  if (req.user.id === req.params || high.includes(req.user.role)) {
+  if (req.user._id === req.params.id || high.includes(req.user.role)) {
     next()
   } else {
-    console.log("Unauthorized User", req.user.id, req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Incorrect User Creditials" })
+    console.log("Unauthorized User", req.user._id, req.user.role)
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Incorrect User Creditials" })
   }
 }
 // Is customer of High Roles
 const isSelf_andCustomer = function (req, res, next){
-  if (req.user.id === req.params && customer.includes(req.user.role)) {
+  if (req.user._id === req.params.id && customer.includes(req.user.role)) {
     next()
   } else {
-    console.log("Unauthorized User", req.user.id, req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Incorrect User Creditials" })
+    console.log("Unauthorized User", req.user._id, req.user.role)
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Incorrect User Creditials" })
   }
 }
 // PROTECT ADMIN ONLY ROUTES
 const isAdmin = function (req, res, next){
   if (req.user.role !== 'admin') {
-    console.log("Unauthorized User", req.user.id, req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Authorization Too Low" })
+    console.log("Unauthorized User", req.user._id, req.user.role)
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Authorization Too Low" })
   } 
   console.log('user is Admin')
   next ()
@@ -77,16 +80,16 @@ const isAdmin = function (req, res, next){
 
 const isCompany = function (req, res, next){
   if (req.user.role !== 'company') {
-    console.log("Unauthorized User", req.user.id, req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Authorization Too Low" })
+    console.log("Unauthorized User", req.user._id, req.user.role)
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Authorization Too Low" })
   } 
   console.log('user is Company')
   next ()
 }
 const isOwner = function (req, res, next){
   if (req.user.role !== 'owner') {
-    console.log("Unauthorized User", req.user.id, req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Authorization Too Low" })
+    console.log("Unauthorized User", req.user._id, req.user.role)
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Authorization Too Low" })
   } 
   console.log('user is Company Owner')
   next ()
@@ -95,64 +98,64 @@ const isOwner = function (req, res, next){
 /**
  * Limit Access based on User's Group
  */
-// All_Roles
+// All_Roles (Admin -> Basic)
 const VeryLow = function (req, res, next){
   if (!very_low.includes(req.user.role)) {
     console.log('user role=',req.user.role)
     console.log('very_low roles include ', very_low)
-    return res.status(403).send({ message: 'Access Denied', reason: "Authorization Too Low" })
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Authorization Too Low" })
   } 
-  console.log("Authorized User", req.user.id, req.user.role)
+  console.log("Authorized User", req.user._id, req.user.role)
   console.log('User in Very-Low Authorization Group')
   next ()
 }
-// Low_Roles
+// Low_Roles (Admin -> Installer.Basic)
 const Low = function (req, res, next){
   if (!low.includes(req.user.role)) {
     console.log(req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Authorization Too Low" })
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Authorization Too Low" })
   } 
-  console.log("Authorized User", req.user.id, req.user.role)
+  console.log("Authorized User", req.user._id, req.user.role)
   console.log('User in Low Authorization Group')
   next ()
 }
-// Mid_Roles
+// Mid_Roles (Admin -> Installer.Mod)
 const Medium = function (req, res, next){
   if (!medium.includes(req.user.role)) {
     console.log(req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Authorization Too Low" })
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Authorization Too Low" })
   } 
-  console.log("Authorized User", req.user.id, req.user.role)
+  console.log("Authorized User", req.user._id, req.user.role)
   console.log('User in Medium Authorization Group')
   next ()
 }
-// High_Roles
+// High_Roles (Admin -> Installer.Admin)
 const High = function (req, res, next){
   if (!high.includes(req.user.role)) {
     console.log(req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Authorization Too Low" })
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Authorization Too Low" })
   } 
-  console.log("Authorized User", req.user.id, req.user.role)
+  console.log("Authorized User", req.user._id, req.user.role)
   console.log('User in High Authorization Group')
   next ()
 }
-// Company_Roles
+// Company_Roles (Admin -> Owner)
 const VeryHigh = function (req, res, next){
   if (!very_high.includes(req.user.role)) {
     console.log(req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Authorization Too Low" })
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Authorization Too Low" })
   } 
-  console.log("Authorized User", req.user.id, req.user.role)
+  console.log("Authorized User", req.user._id, req.user.role)
   console.log('User in Very-High Authorization Group')
   next ()
-}
-// Admin_Roles
+} 
+// Admin_Roles (Admin ONLY)
 const AdminOnly = function (req, res, next){
   if (!admin_only.includes(req.user.role)) {
     console.log(req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Authorization Too Low" })
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Authorization Too Low" })
   } 
-  console.log("Authorized User", req.user.id, req.user.role)
+  console.log("Authorized User", req.user._id, req.user.role)
   console.log('User in Admin-Only Authorization Group')
   next ()
 }
@@ -166,8 +169,8 @@ const isOffice = function (req, res, next){
   if (officeStaff.includes(req.user.role)) {
     next()
   } else {
-    console.log("Unauthorized User", req.user.id, req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Incorrect User Creditials" })
+    console.log("Unauthorized User", req.user._id, req.user.role)
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Incorrect User Creditials" })
   }
 }
 // Shop
@@ -175,8 +178,8 @@ const isShop = function (req, res, next){
   if (shopStaff.includes(req.user.role)) {
     next()
   } else {
-    console.log("Unauthorized User", req.user.id, req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Incorrect User Creditials" })
+    console.log("Unauthorized User", req.user._id, req.user.role)
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Incorrect User Creditials" })
   }
 }
 // Installers
@@ -184,8 +187,8 @@ const isInstaller = function (req, res, next){
   if (installerStaff.includes(req.user.role)) {
     next()
   } else {
-    console.log("Unauthorized User", req.user.id, req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Incorrect User Creditials" })
+    console.log("Unauthorized User", req.user._id, req.user.role)
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Incorrect User Creditials" })
   }
 }
 /**
@@ -196,8 +199,8 @@ const isCustomer = function (req, res, next){
   if (customers.includes(req.user.role)) {
     next()
   } else {
-    console.log("Unauthorized User", req.user.id, req.user.role)
-    return res.status(403).send({ message: 'Access Denied', reason: "Incorrect User Creditials" })
+    console.log("Unauthorized User", req.user._id, req.user.role)
+    return res.status(403).send({ code: 'failure', message: 'Access Denied', reason: "Incorrect User Creditials" })
   }
 }
 
@@ -216,18 +219,18 @@ module.exports = {
 
   // Auth-Level Based Groups
   VeryLow,
-  Low,
-  Medium,
-  High,
-  VeryHigh,
-  AdminOnly,
+  Low,        // Admin -> Installer.Basic
+  Medium,     // Admin -> Installer.Mod
+  High,       // Admin -> Installer.Admin
+  VeryHigh,   // Admin -> Owner
+  AdminOnly,  // Admin
 
   // Customer-Based Groups
-  isSelf_andCustomer,
-  isCustomer,
+  isSelf_andCustomer, // for non-Get operations on customer
+  isCustomer,         // for GET requests only coming from customer account
 
   // Staff-Based Groups
-  isOffice,
-  isShop,
-  isInstaller
+  isOffice,           // Office.Admin -> Office.Basic
+  isShop,             // Shop.Admin -> Shop.Basic
+  isInstaller         // Installer.Admin -> Installer.Basic
 }
