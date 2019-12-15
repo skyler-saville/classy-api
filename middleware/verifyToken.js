@@ -3,9 +3,9 @@ const cookieParser = require('cookie-parser')
 
 module.exports = function (req, res, next){
   const auth_cookie = req.cookies['authorizarion']
-  console.log('Verify Token line:6 ---> req.cookies ', req.cookies)
-  console.log('Verify Token line:7 ---> auth_cookie', auth_cookie)
-  if (auth_cookie) { console.log('Verify Token line:8 ---> auth_cookie', auth_cookie) }
+  // console.log('Verify Token line:6 ---> req.cookies ', req.cookies)
+  // console.log('Verify Token line:7 ---> auth_cookie', auth_cookie)
+  // if (auth_cookie) { console.log('Verify Token line:8 ---> auth_cookie', auth_cookie) }
   // check for logged in user
   if (auth_cookie == 'false') {
     console.log('Access Denied. No Cookie Found in Verify Token')

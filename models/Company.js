@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const moment = require('moment')
 
 const companySchema = new mongoose.Schema({
   name: {
@@ -27,7 +28,7 @@ const companySchema = new mongoose.Schema({
   },
   date: { // sign up date
     type: Date,
-    default: Date.now
+    default: moment() // moment(new Date())
   }, // adding to user schema to create User authorization
   role: {
     type: String,
@@ -36,7 +37,14 @@ const companySchema = new mongoose.Schema({
   status: {
     type: String, 
     enum: ['pending', 'active', 'disabled'],
-    default: 'pending' // will change to active when email is confirmed
+    default: 'pending', // will change to active when email is confirmed
+    status_date: {
+      type: Date // this date will be used to determine how long a user has been disabled, deleted, etc. 
+      // only change the status date when the status gets updated
+    }
+  },
+  last_login: {
+    type: Date
   }
 })
 
