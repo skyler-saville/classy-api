@@ -1,0 +1,1 @@
+// use to permently delete companies and their employees, when the company's status has been set to 'deleted' for longer than 2 days

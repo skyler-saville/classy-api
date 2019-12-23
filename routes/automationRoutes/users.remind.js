@@ -1,0 +1,1 @@
+// use this to send an email to the user to remind them to activate their account by clicking the JWT link
