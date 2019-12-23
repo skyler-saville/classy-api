@@ -36,12 +36,12 @@ const companySchema = new mongoose.Schema({
   },
   status: {
     type: String, 
-    enum: ['pending', 'active', 'disabled'],
-    default: 'pending', // will change to active when email is confirmed
-    status_date: {
-      type: Date // this date will be used to determine how long a user has been disabled, deleted, etc. 
-      // only change the status date when the status gets updated
-    }
+    enum: ['pending', 'active', 'disabled', 'deleted'],
+    default: 'pending' // will change to active when email is confirmed
+  },
+  status_date: {
+    type: Date // this date will be used to determine how long a user has been disabled, deleted, etc. 
+    // only change the status date when the status gets updated
   },
   last_login: {
     type: Date

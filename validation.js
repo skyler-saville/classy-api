@@ -1,10 +1,23 @@
 // Validation
 const Joi = require('@hapi/joi')
 
+const nameOnlyValidation = (data) => {
+  const schema = Joi.object({
+    name: Joi.string().min(2).max(30).required()
+  })
+  return schema.validate(data)
+}
+
+const statusOnlyValidation = (data) => {
+  const schema = Joi.object({
+    status: Joi.any().valid('pending', 'active', 'disabled', 'deleted')
+  })
+  return schema.validate(data)
+}
 
 const companyRegisterValidation = (data) => {
   const schema = Joi.object({
-    name: Joi.string().min(2).required(),
+    name: Joi.string().min(2).max(30).required(),
     email: Joi.string().min(6).required().email(),
     password: Joi.string().min(6).required(),
     phone: Joi.string().regex(/^\d{10}$/) // formats required is 5555555555 (client-side validation required)
@@ -56,6 +69,8 @@ module.exports.companyRegisterValidation = companyRegisterValidation
 module.exports.userRegisterValidation = userRegisterValidation
 module.exports.loginValidation = loginValidation
 module.exports.phoneValidate = phoneValidate
+module.exports.nameOnlyValidation = nameOnlyValidation
+module.exports.statusOnlyValidation = statusOnlyValidation
 
 
   // // Validate data before making a new user

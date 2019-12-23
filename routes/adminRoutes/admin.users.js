@@ -247,7 +247,10 @@ router.route('/search')                   // api/users/search
         console.log(err)
       }
     }
-})
+}) // end of search route
+
+
+
 // get a single user by id
 router.route('/:id')                   // api/users/:id
   .get( verify, admin, async (req, res) => {
