@@ -111,6 +111,10 @@ const userSchema = new mongoose.Schema({
     enum: Object.values(Roles),
     default: Roles.Basic
   },
+  job_title: {
+    type: String,
+    max: 100 // length of 100 for fall back... hand off to Joi to create better validation
+  },
   company_id: { // this will help to grant the company owner(s) similar administrative abilities as being logged in as the company profile (in case of multiple owners)
     type: mongoose.Schema.Types.ObjectId,
     ref: Company

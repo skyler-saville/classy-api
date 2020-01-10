@@ -33,10 +33,11 @@ router.post('/register', async (req, res) => {
     phone: {
       carrier: req.body.phone.carrier,
       number: req.body.phone.number
-    }
+    },
+    job_title: req.body.job_title
   })
   try{
-    const savedUser = await user.save()
+    const savedUser = await user.save() // do nothing with the savedUser variable... it's just for async-ness
     res.send({ user })
   } catch(err) {
     res.status(400).send(err)

@@ -34,11 +34,11 @@ const userRegisterValidation = (data) => {
     phone: {
       number: Joi.string().trim().regex(/^[0-9]{10}$/), // formats required is 5555555555 (client-side validation required)
       carrier: Joi.string().max(30)
-    }
+    },
+    job_title: Joi.string().max(45)
   })
   return schema.validate(data)
 }
-
 
 const loginValidation = (data) => {
   const schema = Joi.object({
@@ -71,6 +71,7 @@ module.exports.loginValidation = loginValidation
 module.exports.phoneValidate = phoneValidate
 module.exports.nameOnlyValidation = nameOnlyValidation
 module.exports.statusOnlyValidation = statusOnlyValidation
+
 
 
   // // Validate data before making a new user
