@@ -45,7 +45,11 @@ const companySchema = new mongoose.Schema({
   },
   last_login: {
     type: Date
-  }
+  },
+  default_tasks: [{
+    type: String,
+    max: 50 // need to setup joi to prevent more than 50 chars in a default task string also
+  }]
 })
 
 module.exports = mongoose.model('Company', companySchema)
