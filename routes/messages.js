@@ -6,7 +6,7 @@ const emailConfig = require('../email.config')
 router.get('/test', verify, (req, res) => {
   const request = req.user 
   if (!request) res.status(400).json({'error': 'no user sent with request'})
-
+  // maybe move away from using a header and instead use req.body
   const text_message = req.header('text_message')
   console.log("text_message value ", text_message)
   if (!text_message) {

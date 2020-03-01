@@ -27,7 +27,8 @@ const forgotRoute = require('./routes/forgotPassword')
 // ADMIN ONLY ROUTES
 const companiesRoutes = require('./routes/adminRoutes/admin.companies')
 const usersRoutes = require('./routes/adminRoutes/admin.users')
-
+// GOOGLE ROUTES
+const googleCalendar = require('./routes/serviceAccountRoutes/google.calendar')
 
 // DB connection
 mongoose.connect(process.env.DB_CONNECTION, 
@@ -60,6 +61,8 @@ app.use('/api/messages', textRoute)
 app.use('/api', logoutRoute)            //  '/api/logout'
 // FORGOT PASSWORD ROUTER
 app.use('/api', forgotRoute)            //  '/api/forgot-password'
+// GOOGLE ROUTERS
+app.use('/api/google', googleCalendar)  //  '/api/google/calendar'
 
 
-app.listen(3001, () => console.log('.  \n. .  \n. . . . \nServer Up and Running on Port 3001'))
+app.listen(3001, () => console.log(`.  \n. .  \n. . . . \nServer Up and Running on Port 3001 \nAccount Type: ${process.env.G_TYPE}\nCLient ID: ${process.env.G_CLIENT_ID} \nProject Id: ${process.env.G_PROJECT_ID}`))

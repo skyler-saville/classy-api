@@ -34,7 +34,8 @@ router.route('/')                   // api/users
       })
     }
   })
-// get a list of specific users
+
+  // get a list of specific users
 router.route('/search')                   // api/users/search
   .get( verify, admin, async (req, res) => {
 
@@ -248,8 +249,6 @@ router.route('/search')                   // api/users/search
       }
     }
 }) // end of search route
-
-
 
 // get a single user by id
 router.route('/:id')                   // api/users/:id

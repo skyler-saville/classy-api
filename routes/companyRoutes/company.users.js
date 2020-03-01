@@ -352,134 +352,137 @@ router.route('/:id')
     }
   })
 
-// GET FILTERED LIST OF USERS   /api/company/users/search
-router.route('/search')
-  .get(verify, company, async (req, res) => {
-    // query for role-type
-    if (req.query.role) {
-      res.send('role stuff')
-    } else
-    // query for status
-    if (req.query.status) {
-      res.send('status stuff')
-    } else
-    /**
-     * DATE FORMAT: new Date(year, monthIndex [, day [, hours [, minutes [, seconds [, milliseconds]]]]]);
-     * 2019-12-07T23:10:54.250Z
-     */
-    // query for before date 
-    if (req.query.before_date) {
-      var results = []
-      // res.send(`employees before date ${req.query.date_before}`)
-      const employees = await User.find({company_id: req.user._id}, { password: 0, __v: 0, company_id: 0, company_name: 0, "phone.carrier": 0 })
-      if (employees) {
-        try {
-          const queryDate = req.query.before_date
-          const before = moment(queryDate)
-          for (var i = 0; i < employees.length; i++) {
-            var tmp = moment(employees[i].date)
-            if (tmp.isSameOrBefore(before, 'day')) {
-              results.push(employees[i])
-            }
-          }
-          // console.log(results)
-          if (results.length === 0){
-            res.status(401).send({
-              code: 'failure',
-              message: 'no results were found, based on date given',
-              date: req.query.before_date,
-              number_of_results: results.length
-            })
-          } else {
-            res.send(results)
-          }
-        } catch (err) {
-          res.status(400).json({
-            code: 'failure',
-            message: 'malformed user_id or some other issue caused an error',
-            error: err
-          })
-        }
-      } else {
-        res.status(401).send({
-          code: 'failure',
-          message: 'no employees could be found, there could have been an error with the server.'
-        })
-      }
+// Older version of search
+// // GET FILTERED LIST OF USERS   /api/company/users/search
+// router.route('/search')
+//   .get(verify, company, async (req, res) => {
+//     // query for role-type
+//     if (req.query.role) {
+//       res.send('role stuff')
+//     } else
+//     // query for status
+//     if (req.query.status) {
+//       res.send('status stuff')
+//     } else
+//     /**
+//      * DATE FORMAT: new Date(year, monthIndex [, day [, hours [, minutes [, seconds [, milliseconds]]]]]);
+//      * 2019-12-07T23:10:54.250Z
+//      */
+//     // query for before date 
+//     if (req.query.before_date) {
+//       var results = []
+//       // res.send(`employees before date ${req.query.date_before}`)
+//       const employees = await User.find({company_id: req.user._id}, { password: 0, __v: 0, company_id: 0, company_name: 0, "phone.carrier": 0 })
+//       if (employees) {
+//         try {
+//           const queryDate = req.query.before_date
+//           const before = moment(queryDate)
+//           for (var i = 0; i < employees.length; i++) {
+//             var tmp = moment(employees[i].date)
+//             if (tmp.isSameOrBefore(before, 'day')) {
+//               results.push(employees[i])
+//             }
+//           }
+//           // console.log(results)
+//           if (results.length === 0){
+//             res.status(401).send({
+//               code: 'failure',
+//               message: 'no results were found, based on date given',
+//               date: req.query.before_date,
+//               number_of_results: results.length
+//             })
+//           } else {
+//             res.send(results)
+//           }
+//         } catch (err) {
+//           res.status(400).json({
+//             code: 'failure',
+//             message: 'malformed user_id or some other issue caused an error',
+//             error: err
+//           })
+//         }
+//       } else {
+//         res.status(401).send({
+//           code: 'failure',
+//           message: 'no employees could be found, there could have been an error with the server.'
+//         })
+//       }
 
-    } else
-    // query for after date
-    if (req.query.after_date) {
-      var results = []
-      // res.send(`employees before date ${req.query.date_before}`)
-      const employees = await User.find({company_id: req.user._id}, {password: 0, __v: 0, company_id: 0, company_name: 0, "phone.carrier": 0})
-      if (employees) {
-        try {
-          const queryDate = req.query.after_date
-          const after = moment(queryDate)
-          for (var i = 0; i < employees.length; i++) {
-              var tmp = moment(employees[i].date)
-              if (tmp.isSameOrAfter(after, 'day')) {
-                results.push(employees[i])
-              }
-          }
-          // console.log(results)
-          if (results.length === 0){
-            res.status(401).send({
-              code: 'failure',
-              message: 'no results were found, based on date given',
-              date: req.query.after_date,
-              number_of_results: results.length
-            })
-          } else {
-            res.send(results)
-          }
-        } catch (err) {
-          console.log(err)
-        }
-      } else {
-        res.status(401).send({
-          code: 'failure',
-          message: 'no employees could be found, there could have been an error with the server.'
-        })
-      }
-    } else
-    // query for date
-    if (req.query.on_date) {
-      var results = []
-      // res.send(`employees before date ${req.query.date_before}`)
-      const employees = await User.find({company_id: req.user._id}, {password: 0, __v: 0, company_id: 0, company_name: 0, "phone.carrier": 0})
-      if (employees) {
-        try {
-          var queryDate = req.query.on_date
-          var exact = moment(queryDate)
-          for (var i = 0; i < employees.length; i++) {
-            console.log(moment(employees[i].date).isSame(exact, 'day'))
-            console.log(`employee: ${moment(employees[i].date)} compared to query: ${exact}`)
-            if (moment(employees[i].date).isSame(exact, 'day')){
-              results.push(employees[i])
-            }
-          }
-          // console.log(results)
-          if (results.length === 0){
-            res.status(401).send({
-              code: 'failure',
-              message: 'no results were found, based on date given',
-              date: req.query.on_date,
-              number_of_results: results.length
-            })
-          } else {
-            res.send(results)
-          }
-        } catch (err) {
-          console.log(err)
-        }
-      } else {
-        res.status(401).send({
-          code: 'failure',
-          message: 'no employees could be found, there could have been an error with the server.'
-        })
-      }
-    }
-  })
+//     } else
+//     // query for after date
+//     if (req.query.after_date) {
+//       var results = []
+//       // res.send(`employees before date ${req.query.date_before}`)
+//       const employees = await User.find({company_id: req.user._id}, {password: 0, __v: 0, company_id: 0, company_name: 0, "phone.carrier": 0})
+//       if (employees) {
+//         try {
+//           const queryDate = req.query.after_date
+//           const after = moment(queryDate)
+//           for (var i = 0; i < employees.length; i++) {
+//               var tmp = moment(employees[i].date)
+//               if (tmp.isSameOrAfter(after, 'day')) {
+//                 results.push(employees[i])
+//               }
+//           }
+//           // console.log(results)
+//           if (results.length === 0){
+//             res.status(401).send({
+//               code: 'failure',
+//               message: 'no results were found, based on date given',
+//               date: req.query.after_date,
+//               number_of_results: results.length
+//             })
+//           } else {
+//             res.send(results)
+//           }
+//         } catch (err) {
+//           console.log(err)
+//         }
+//       } else {
+//         res.status(401).send({
+//           code: 'failure',
+//           message: 'no employees could be found, there could have been an error with the server.'
+//         })
+//       }
+//     } else
+//     // query for date
+//     if (req.query.on_date) {
+//       var results = []
+//       // res.send(`employees before date ${req.query.date_before}`)
+//       const employees = await User.find({company_id: req.user._id}, {password: 0, __v: 0, company_id: 0, company_name: 0, "phone.carrier": 0})
+//       if (employees) {
+//         try {
+//           var queryDate = req.query.on_date
+//           var exact = moment(queryDate)
+//           for (var i = 0; i < employees.length; i++) {
+//             console.log(moment(employees[i].date).isSame(exact, 'day'))
+//             console.log(`employee: ${moment(employees[i].date)} compared to query: ${exact}`)
+//             if (moment(employees[i].date).isSame(exact, 'day')){
+//               results.push(employees[i])
+//             }
+//           }
+//           // console.log(results)
+//           if (results.length === 0){
+//             res.status(401).send({
+//               code: 'failure',
+//               message: 'no results were found, based on date given',
+//               date: req.query.on_date,
+//               number_of_results: results.length
+//             })
+//           } else {
+//             res.send(results)
+//           }
+//         } catch (err) {
+//           console.log(err)
+//         }
+//       } else {
+//         res.status(401).send({
+//           code: 'failure',
+//           message: 'no employees could be found, there could have been an error with the server.'
+//         })
+//       }
+//     }
+//   })
+
+
 module.exports = router
