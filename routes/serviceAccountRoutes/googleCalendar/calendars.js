@@ -1,6 +1,6 @@
 const router = require('express').Router()
 const {google} = require('googleapis')
-const keys = require('./credentials')
+const keys = require('../credentials')
 const calendar = google.calendar('v3')
 
 // scopes 
@@ -17,7 +17,11 @@ router.get('/calendars', (req, res) => {
   // console.log('searching all calendars')
   jwt.authorize ((err, tokens) => {
     calendar.calendarList.list({
-      auth: jwt
+      auth: jwt,
+      requestBody: {
+        showHidden: true,
+        showDeleted: true
+      }
   },
   (err, response) => {
     
@@ -69,7 +73,7 @@ router.get('/calendars/:id', (req, res) => {
         console.log(`There was an issue with the request ${err}`)
         res.status(400).send({error: err})
       } else {
-        console.log(`New calendar created! \nID: ${response.data.id} \nSUMMARY: ${response.data.summary}`)
+        console.log(`ID: ${response.data.id} \nSUMMARY: ${response.data.summary}`)
         res.status(201).send(response.data)
       }
     }
@@ -77,11 +81,9 @@ router.get('/calendars/:id', (req, res) => {
   })
 })
 
-// list all access conrols for a specific calendar
-router.get('/calendars/:id/acl', (req, res) => {
-  console.log(`Calendar id = ${req.params.id}`)
+.delete('/calendars/:id', (req, res) => {
   jwt.authorize( (err, tokens) => {
-    calendar.acl.list({
+    calendar.calendars.delete({
       auth: jwt,
       calendarId: req.params.id
     },
@@ -90,33 +92,8 @@ router.get('/calendars/:id/acl', (req, res) => {
         console.log(`There was an issue with the request ${err}`)
         res.status(400).send({error: err})
       } else {
-        console.log(`New calendar created! \nID: ${response.data.id} \nSUMMARY: ${response.data.summary}`)
-        res.status(201).send(response.data)
-      }
-    }
-    )
-  })
-})
-// insert access control rule for a specific calendar
-.post('/calendars/:id/acl', (req, res) => {
-  console.log(`Calendar id = ${req.params.id}`)
-  jwt.authorize( (err, tokens) => {
-    calendar.acl.list({
-      auth: jwt,
-      calendarId: req.params.id,
-      // set the role and type from query params 'aclrole' and acltype'
-      role: 'reader',
-      scope: {
-        type: 'default'
-      }
-    },
-    (err, response) => {
-      if (err) {
-        console.log(`There was an issue with the request ${err}`)
-        res.status(400).send({error: err})
-      } else {
-        console.log(`New access control created for ${req.params.id}`)
-        res.status(201).send(response)
+        console.log(`Deleted calendar ${req.params.id}`)
+        res.status(200).send({code: 'Success', message: `Deleted calendar ${req.params.id}`})
       }
     }
     )
